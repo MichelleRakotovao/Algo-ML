@@ -100,23 +100,23 @@ class Matrices:
 
 #-- progamme test
 
-# if __name__ == "__main__":
-#     dimension = int(input("Choisir la dimension (3 ou 4) : "))
-#     if dimension in {3, 4}:
-#         matrices = Matrices()
-#         print("\nMatrice initiale :")
-#         start_matrix = matrices.current_matrix(dimension)
-#         print("\nMatrice finale :")
-#         goal_matrix = matrices.end_matrix(dimension)
-#         print("\nRésolution du puzzle :")
-#         solution = matrices.solve_puzzle(start_matrix, goal_matrix, dimension)
-#         if solution:
-#             print(f"Solution trouvée en {len(solution) - 1} étapes.")
-#             for step_num, step in enumerate(solution):
-#                 print(f"\nÉtape {step_num + 1} :")
-#                 for row in step:
-#                     print(" ".join(f"{val:3}" for val in row))
-#         else:
-#             print("Aucune solution trouvée.")
-#     else:
-#         print("Veuillez choisir une dimension valide : 3 ou 4.")
+if __name__ == "__main__":
+    dimension = int(input("Choisir la dimension (3 ou 4) : "))
+    if dimension in {3, 4}:
+        matrices = Matrices()
+        print("\nMatrice initiale :")
+        start_matrix = matrices.current_matrix(dimension)
+        print("\nMatrice finale :")
+        goal_matrix = matrices.end_matrix(dimension)
+        print("\nRésolution du puzzle :")
+        solution = matrices.solve_puzzle(start_matrix, goal_matrix, dimension)
+        if solution:
+            print(f"Solution trouvée en {len(solution) - 1} étapes.")
+            for step_num, step in enumerate(solution):
+                print(f"\nÉtape {step_num + 1} :")
+                for row in step:
+                    print(" ".join(f"{val:3}" for val in row))
+        else:
+            print("Aucune solution trouvée.")
+    else:
+        print("Veuillez choisir une dimension valide : 3 ou 4.")
