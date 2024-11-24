@@ -1,5 +1,7 @@
 import random
 import heapq
+import csv
+from time import time
 
 class Matrices:
     def current_matrix(self, n):
@@ -40,7 +42,7 @@ class Matrices:
         return distance
 
     def get_neighbors(self, etat, n, swap_type="standard", swap_count=1):
-        """Génère les voisins selon le type de swap spécifié."""
+        # Génère les voisins selon le type de swap spécifié."""
         flat_etat = sum(etat, [])
         neighbors = []
 
@@ -70,9 +72,16 @@ class Matrices:
                 new_flat[x * n + y], new_flat[nx * n + ny] = new_flat[nx * n + ny], new_flat[x * n + y]
                 neighbors.append([new_flat[i:i + n] for i in range(0, len(new_flat), n)])
         return neighbors
+    
+    # -- Exporte les valeurs dans un fichier CSV
+    def export_results_to_csv(filename, data):
+        with open(filename, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.DictWriter(file, fieldnames=data[0].keys())
+            writer.writeheader()
+            writer.writerows(data)
 
     def solve_puzzle(self, initial, goal, n, swap_type="standard", swap_count=1):
-        """Résoud le puzzle avec l'algorithme A* pour un type de swap donné."""
+        #-- Résoud le puzzle avec l'algorithme A* pour un type de swap donné.
         frontier = []
         heapq.heappush(frontier, (0, initial, 0, None))
         explored = set()
@@ -112,33 +121,51 @@ class Matrices:
         print()
 
 
-# -- Programme test
-# if __name__ == "__main__":
-#     dimension = int(input("Choisir la dimension (3 ou 4) : "))
-#     swap_type = input("Choisir le type de swap (standard, 0-swap, dynamic) : ").strip().lower()
-#     swap_count = 1  # Par défaut, un seul swap dynamique
+# # -- Programme test
+if __name__ == "__main__":
+    dimension = int(input("Choisir la dimension (3 ou 4) : "))
+    swap_type = input("Choisir le type de swap (standard, 0-swap, dynamic) : ").strip().lower()
+    swap_count = 1  # Par défaut, un seul swap dynamique
 
-#     if swap_type == "dynamic":
-#         swap_count = int(input("Spécifiez le nombre de swaps dynamiques : "))
+    if swap_type == "dynamic":
+        swap_count = int(input("Spécifiez le nombre de swaps dynamiques : "))
 
-#     if dimension in {3, 4} and swap_type in {"standard", "0-swap", "dynamic"}:
-#         matrices = Matrices()
-#         print("\nMatrice initiale :")
-#         start_matrix = matrices.current_matrix(dimension)
-#         matrices.print_matrix(start_matrix)
+    if dimension in {3, 4} and swap_type in {"standard", "0-swap", "dynamic"}:
+        matrices = Matrices()
+        print("\nMatrice initiale :")
+        start_matrix = matrices.current_matrix(dimension)
+        matrices.print_matrix(start_matrix)
 
-#         print("\nMatrice finale :")
-#         goal_matrix = matrices.end_matrix(dimension)
-#         matrices.print_matrix(goal_matrix)
+        print("\nMatrice finale :")
+        goal_matrix = matrices.end_matrix(dimension)
+        matrices.print_matrix(goal_matrix)
 
-#         print("\nRésolution du puzzle :")
-#         solution = matrices.solve_puzzle(start_matrix, goal_matrix, dimension, swap_type=swap_type, swap_count=swap_count)
-#         if solution:
-#             print(f"Solution trouvée en {len(solution) - 1} étapes.")
-#             for step_num, step in enumerate(solution):
-#                 print(f"\nÉtape {step_num + 1} :")
-#                 matrices.print_matrix(step)
-#         else:
-#             print("Aucune solution trouvée.")
-#     else:
-#         print("Veuillez choisir une dimension valide (3 ou 4) et un type de swap correct (standard, 0-swap, dynamic).")
+        print("\nRésolution du puzzle :")
+        start_time = time()
+        solution = matrices.solve_puzzle(start_matrix, goal_matrix, dimension, swap_type=swap_type, swap_count=swap_count)
+        end_time = time()
+
+        execution_time = end_time - start_time
+        if solution:
+            print(f"Solution trouvée en {len(solution) - 1} étapes.")
+            for step_num, step in enumerate(solution):
+                print(f"\nÉtape {step_num + 1} :")
+                matrices.print_matrix(step)
+        else:
+            print("Aucune solution trouvée.")
+
+        # Collecte des données pour export
+        result = {
+            "Dimension": dimension,
+            "Swap Type": swap_type,
+            "Swap Count": swap_count if swap_type == "dynamic" else None,
+            "Execution Time (s)": execution_time,
+            "Moves": len(solution) - 1 if solution else None,
+            "Status": "Success" if solution else "Failed",
+        }
+
+        # Export des résultats
+        Matrices.export_results_to_csv("solver_results.csv", [result])
+        print("Les résultats ont été exportés vers 'solver_results.csv'.")
+    else:
+        print("Veuillez choisir une dimension valide (3 ou 4) et un type de swap correct (standard, 0-swap, dynamic).")
