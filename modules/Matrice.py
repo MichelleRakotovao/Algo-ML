@@ -6,18 +6,37 @@ from time import time
 class Matrices:
     def current_matrix(self, n):
         #-- Génère une matrice initiale aléatoire et solvable.
-        values = [i + 1 for i in range(n * n - 1)] + [0]
+        values = [i + 1 for i in range(n * n - 1)] + [0] #generation matrice [0+1 ,1+1 , ..... ]+[0]
         while True:
-            random.shuffle(values)
+            random.shuffle(values) #Mélange la liste
             if self.is_solvable(values, n):
                 break
-        return [values[i:i + n] for i in range(0, len(values), n)]
+        return [values[i:i + n] for i in range(0, len(values), n)] #decoupage du matrice --> produit : [0, 3, 6]
+
+# values = [1, 2, 3, 4, 5, 6, 7, 8, 0]
+# matrice = [
+#     [1, 2, 3],
+#     [4, 5, 6],
+#     [7, 8, 0]
+# ]
+
 
     def end_matrix(self, n):
         # -- Génère la matrice finale
         values = [i + 1 for i in range(n * n - 1)] + [0]
         return [values[i:i + n] for i in range(0, len(values), n)]
 
+
+#onditions de solvabilité :
+    #Puzzle avec une grille de dimensions impaires (n%2=1)
+    #Le puzzle est résolvable si le nombre total d'inversions est pair.
+        #Une inversion est une paire de tuiles (𝑎,𝑏) avec 𝑎>𝑏 où 𝑎 apparaît avant b dans l'ordre linéaire du puzzle.
+
+#Puzzle avec une grille de dimensions paires (n%2=0)
+    #(nombre d’inversions + ligne du zero)%2=0
+
+
+#Inversion : Une paire  (a,b) est une inversion si a apparaît avant b dans values, mais a>b (sauf si b=0, car 0 représente une case vide).
     def is_solvable(self, values, n):
         # Vérifie si une configuration de puzzle est solvable.
         inversions = sum(
@@ -30,6 +49,7 @@ class Matrices:
             row_empty = values.index(0) // n
             return (inversions + row_empty) % 2 == 0
 
+    #manhattan_distance = ∣x1−x2∣+∣y1−y2∣
     def manhattan_distance(self, etat, goal, n):
         # Calcule la distance de Manhattan entre deux états.
         distance = 0
@@ -40,6 +60,7 @@ class Matrices:
                     goal_x, goal_y = divmod(goal.index(value), n)
                     distance += abs(i - goal_x) + abs(j - goal_y)
         return distance
+
 
     def get_neighbors(self, etat, n, swap_type="standard", swap_count=1):
         # Génère les voisins selon le type de swap spécifié."""
@@ -120,52 +141,51 @@ class Matrices:
             print(" ".join(f"{val:3}" for val in row))
         print()
 
+# -- Programme test
+if _name_ == "_main_":
+    dimension = int(input("Choisir la dimension (3 ou 4) : "))
+    swap_type = input("Choisir le type de swap (standard, 0-swap, dynamic) : ").strip().lower()
+    swap_count = 1  # Par défaut, un seul swap dynamique
 
-# # -- Programme test
-# if __name__ == "__main__":
-#     dimension = int(input("Choisir la dimension (3 ou 4) : "))
-#     swap_type = input("Choisir le type de swap (standard, 0-swap, dynamic) : ").strip().lower()
-#     swap_count = 1  # Par défaut, un seul swap dynamique
+    if swap_type == "dynamic":
+        swap_count = int(input("Spécifiez le nombre de swaps dynamiques : "))
 
-#     if swap_type == "dynamic":
-#         swap_count = int(input("Spécifiez le nombre de swaps dynamiques : "))
+    if dimension in {3, 4} and swap_type in {"standard", "0-swap", "dynamic"}:
+        matrices = Matrices()
+        print("\nMatrice initiale :")
+        start_matrix = matrices.current_matrix(dimension)
+        matrices.print_matrix(start_matrix)
 
-#     if dimension in {3, 4} and swap_type in {"standard", "0-swap", "dynamic"}:
-#         matrices = Matrices()
-#         print("\nMatrice initiale :")
-#         start_matrix = matrices.current_matrix(dimension)
-#         matrices.print_matrix(start_matrix)
+        print("\nMatrice finale :")
+        goal_matrix = matrices.end_matrix(dimension)
+        matrices.print_matrix(goal_matrix)
 
-#         print("\nMatrice finale :")
-#         goal_matrix = matrices.end_matrix(dimension)
-#         matrices.print_matrix(goal_matrix)
+        print("\nRésolution du puzzle :")
+        start_time = time()
+        solution = matrices.solve_puzzle(start_matrix, goal_matrix, dimension, swap_type=swap_type, swap_count=swap_count)
+        end_time = time()
 
-#         print("\nRésolution du puzzle :")
-#         start_time = time()
-#         solution = matrices.solve_puzzle(start_matrix, goal_matrix, dimension, swap_type=swap_type, swap_count=swap_count)
-#         end_time = time()
+        execution_time = end_time - start_time
+        if solution:
+            print(f"Solution trouvée en {len(solution) - 1} étapes.")
+            for step_num, step in enumerate(solution):
+                print(f"\nÉtape {step_num + 1} :")
+                matrices.print_matrix(step)
+        else:
+            print("Aucune solution trouvée.")
 
-#         execution_time = end_time - start_time
-#         if solution:
-#             print(f"Solution trouvée en {len(solution) - 1} étapes.")
-#             for step_num, step in enumerate(solution):
-#                 print(f"\nÉtape {step_num + 1} :")
-#                 matrices.print_matrix(step)
-#         else:
-#             print("Aucune solution trouvée.")
+        # Collecte des données pour export
+        result = {
+            "Dimension": dimension,
+            "Swap Type": swap_type,
+            "Swap Count": swap_count if swap_type == "dynamic" else None,
+            "Execution Time (s)": execution_time,
+            "Moves": len(solution) - 1 if solution else None,
+            "Status": "Success" if solution else "Failed",
+        }
 
-#         # Collecte des données pour export
-#         result = {
-#             "Dimension": dimension,
-#             "Swap Type": swap_type,
-#             "Swap Count": swap_count if swap_type == "dynamic" else None,
-#             "Execution Time (s)": execution_time,
-#             "Moves": len(solution) - 1 if solution else None,
-#             "Status": "Success" if solution else "Failed",
-#         }
-
-#         # Export des résultats
-#         Matrices.export_results_to_csv("solver_results.csv", [result])
-#         print("Les résultats ont été exportés vers 'solver_results.csv'.")
-#     else:
-#         print("Veuillez choisir une dimension valide (3 ou 4) et un type de swap correct (standard, 0-swap, dynamic).")
+        # Export des résultats
+        Matrices.export_results_to_csv("solver_results.csv", [result])
+        print("Les résultats ont été exportés vers 'solver_results.csv'.")
+    else:
+        print("Veuillez choisir une dimension valide (3 ou 4) et un type de swap correct (standard, 0-swap, dynamic).")
