@@ -23,7 +23,7 @@ class alphabeta:
         grille = [plateau[0:3], plateau[3:6], plateau[6:9]]
 
         def rotation_90(mat):
-            return [list(row) for row in zip(*mat[::1])]
+            return [list(row) for row in zip(*mat[::-1])]
 
         def miroir_horizontal(mat):
             return mat[::1]
@@ -69,10 +69,73 @@ class alphabeta:
                     if tuple(sym) in cls.etat_unique:
                         est_deja_vu = True
                         break
-                    if not est_deja_vu :
-                        cls.etat_unique.add(tuple(plateau))
-                        prochain_joueur = 1 if nombre_x == nombre_o else -1
-                        return plateau, prochain_joueur, nombre_de_coups
+
+                if not est_deja_vu :
+                    cls.etat_unique.add(tuple(plateau))
+                    prochain_joueur = 1 if nombre_x == nombre_o else -1
+                    return plateau, prochain_joueur, nombre_de_coups
             
+    @staticmethod
+    def est_plein(plateau):
+        return all(cell != 0 for cell in plateau)
     
+    @staticmethod
+    def coup_possible(plateau):
+        return [i for i, val in enumerate(plateau) if val == 0]
+    
+    @staticmethod
+    def evaluate(plateau):
+        return alphabeta.verification_Winner(plateau)
+    
+    @staticmethod
+    def minimax(plateau, joueur, alpha, beta):
+        gagnant = alphabeta.evaluate(plateau)
+        if gagnant != 0:
+            return gagnant * joueur, None
+        if alphabeta.est_plein(plateau):
+            return 0, None
+        
+        meilleur_score = -float('inf')
+        meilleur_coup = None
+
+        for coup in alphabeta.coup_possible(plateau):
+            plateau[coup]  = joueur
+            score, _ = alphabeta.minimax(plateau, -joueur, -beta, -alpha)
+            score = -score
+            plateau[coup] = 0
+
+            if score > meilleur_score:
+                meilleur_score = score
+                meilleur_coup = coup
+
+            alpha = max(alpha, score)
+            if alpha >= beta:
+                break
+
+        return  meilleur_score, meilleur_coup
+    
+def analyser_etats(etats):
+    dataset = []
+    for plateau, joueur, coups in etats:
+        score, meilleur_coup = alphabeta.minimax(plateau[:], joueur, -float('inf'), float('inf'))
+        ligne = plateau + [joueur, meilleur_coup]
+        dataset.append(ligne)
+    return dataset
+
+if __name__ == "__main__":
+    # Générer 10 états valides
+    etats = [alphabeta.generation_etat_valide() for _ in range(10)]
+
+    # Analyser avec minimax
+    analyse = analyser_etats(etats)
+
+    # Afficher les résultats
+    for i, ligne in enumerate(analyse):
+        plateau = ligne[:9]
+        joueur = ligne[9]
+        coup = ligne[10]
+        print(f"État {i + 1} : {plateau}")
+        print(f"Joueur actif : {'X' if joueur == 1 else 'O'}")
+        print(f"Meilleur coup suggéré (index 0–8) : {coup}")
+        print("-" * 40)
                     
