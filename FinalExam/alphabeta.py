@@ -139,6 +139,6 @@ if __name__ == "__main__":
     analyse = analyser_etats(etats)
     
     print(" Export du dataset CSV...")
-    exporter_csv(analyse, "dataset_tictactoe.csv")
+    exporter_csv(analyse, "dataset_Morpion.csv")
     
-    print("Fichier 'dataset_tictactoe.csv' généré avec succès.")
+    print("Fichier 'dataset_morpion.csv' généré avec succès.")
