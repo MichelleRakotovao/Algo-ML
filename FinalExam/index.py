@@ -2,6 +2,7 @@ import pygame
 import sys
 import math
 
+
 # --- Initialisation de Pygame et des Constantes ---
 pygame.init()
 
@@ -133,7 +134,14 @@ def restart_game():
     draw_lines()
 
 def draw_game_over():
-    """Affiche l'écran de fin de partie."""
+    """Affiche l'écran de fin de partie avec un calque semi-transparent."""
+
+    # Créer un calque semi-transparent pour assombrir l'arrière-plan
+    overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    overlay.fill((10, 25, 47, 180))  # Couleur (R, G, B, Alpha) - 180 donne une bonne transparence
+    screen.blit(overlay, (0, 0))
+
+    # Afficher le message de victoire ou de match nul
     if winner:
         end_text = font.render(f"{winner} a gagné!", True, TEXT_COLOR)
     else:
@@ -142,6 +150,7 @@ def draw_game_over():
     text_rect = end_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 50))
     screen.blit(end_text, text_rect)
 
+    # Afficher le message pour recommencer
     restart_text = small_font.render("Appuyez sur 'R' pour Recommencer", True, TEXT_COLOR)
     restart_rect = restart_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 50))
     screen.blit(restart_text, restart_rect)
