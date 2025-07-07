@@ -1,4 +1,5 @@
 import random
+import csv
 
 class alphabeta:
 
@@ -122,20 +123,22 @@ def analyser_etats(etats):
         dataset.append(ligne)
     return dataset
 
+def exporter_csv(dataset, nom_fichier="datasetMorpion.csv"):
+    with open(nom_fichier, mode='w', newline='') as fichier:
+        writer = csv.writer(fichier)
+        headers = [f"c{i}" for i in range(9)] + ["joueur", "best_move"]
+        writer.writerow(headers)
+        for lignes in dataset:
+            writer.writerow(lignes)
+
 if __name__ == "__main__":
-    # Générer 10 états valides
-    etats = [alphabeta.generation_etat_valide() for _ in range(10)]
-
-    # Analyser avec minimax
+    print(" Génération des états...")
+    etats = [alphabeta.generation_etat_valide() for _ in range(500)] 
+    
+    print(" Analyse par Minimax...")
     analyse = analyser_etats(etats)
-
-    # Afficher les résultats
-    for i, ligne in enumerate(analyse):
-        plateau = ligne[:9]
-        joueur = ligne[9]
-        coup = ligne[10]
-        print(f"État {i + 1} : {plateau}")
-        print(f"Joueur actif : {'X' if joueur == 1 else 'O'}")
-        print(f"Meilleur coup suggéré (index 0–8) : {coup}")
-        print("-" * 40)
-                    
+    
+    print(" Export du dataset CSV...")
+    exporter_csv(analyse, "dataset_tictactoe.csv")
+    
+    print("Fichier 'dataset_tictactoe.csv' généré avec succès.")
